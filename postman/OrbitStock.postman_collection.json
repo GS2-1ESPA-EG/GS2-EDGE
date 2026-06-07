@@ -1,0 +1,326 @@
+{
+  "info": {
+    "name": "OrbitStock - Edge Computing",
+    "description": "Coleção FIWARE para o projeto OrbitStock (FIAP Global Solution 2026).\nAutores: Enrico Dellatorre RM566824, Gustavo Hiruo RM567625.\n\nUsa a variável de ambiente {{url}} apontando para o IP público da VM Azure.\n\nFluxo recomendado:\n1. Health Check (Orion, IoT Agent, STH-Comet)\n2. Criar Service Group\n3. Criar Device do compartimento M-03\n4. Criar entidade Compartment:DRAGON-C209:M-03\n5. Ligar ESP32 no Wokwi e ver os dados chegando\n6. Enviar comando alert/ack do Postman ao ESP32",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health Check",
+      "item": [
+        {
+          "name": "1.1 Orion Version",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{url}}:1026/version",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "1026",
+              "path": ["version"]
+            }
+          }
+        },
+        {
+          "name": "1.2 IoT Agent Version",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{url}}:4041/iot/about",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "4041",
+              "path": ["iot", "about"]
+            }
+          }
+        },
+        {
+          "name": "1.3 STH-Comet Version",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{url}}:8666/version",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "8666",
+              "path": ["version"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Provisionamento (uma vez)",
+      "item": [
+        {
+          "name": "2.1 Criar Service Group (UL /iot/d)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"services\": [\n    {\n      \"apikey\": \"4jggokgpepnvsb2uv4s40d59ov\",\n      \"cbroker\": \"http://orion:1026\",\n      \"entity_type\": \"Compartment\",\n      \"resource\": \"/iot/d\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "http://{{url}}:4041/iot/services",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "4041",
+              "path": ["iot", "services"]
+            }
+          }
+        },
+        {
+          "name": "2.2 Listar Service Groups",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "url": {
+              "raw": "http://{{url}}:4041/iot/services",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "4041",
+              "path": ["iot", "services"]
+            }
+          }
+        },
+        {
+          "name": "2.3 Criar Device compartment_m03",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"devices\": [\n    {\n      \"device_id\": \"compartment_m03\",\n      \"apikey\": \"4jggokgpepnvsb2uv4s40d59ov\",\n      \"entity_name\": \"urn:ngsi-ld:Compartment:DRAGON-C209:M-03\",\n      \"entity_type\": \"Compartment\",\n      \"transport\": \"MQTT\",\n      \"attributes\": [\n        { \"object_id\": \"t\", \"name\": \"current_temp\",     \"type\": \"Number\"  },\n        { \"object_id\": \"h\", \"name\": \"current_humidity\", \"type\": \"Number\"  },\n        { \"object_id\": \"g\", \"name\": \"last_impact_g\",    \"type\": \"Number\"  },\n        { \"object_id\": \"l\", \"name\": \"last_light_level\", \"type\": \"Number\"  },\n        { \"object_id\": \"o\", \"name\": \"is_open\",          \"type\": \"Boolean\" },\n        { \"object_id\": \"s\", \"name\": \"severity\",         \"type\": \"Text\"    }\n      ],\n      \"commands\": [\n        { \"name\": \"ack\",   \"type\": \"command\" },\n        { \"name\": \"alert\", \"type\": \"command\" }\n      ]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "http://{{url}}:4041/iot/devices",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "4041",
+              "path": ["iot", "devices"]
+            }
+          }
+        },
+        {
+          "name": "2.4 Listar Devices",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "url": {
+              "raw": "http://{{url}}:4041/iot/devices",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "4041",
+              "path": ["iot", "devices"]
+            }
+          }
+        },
+        {
+          "name": "2.5 Criar Entidade no Orion (snapshot inicial)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"urn:ngsi-ld:Compartment:DRAGON-C209:M-03\",\n  \"type\": \"Compartment\",\n  \"spacecraft_id\":    { \"type\": \"Text\",    \"value\": \"DRAGON-C209\" },\n  \"compartment_id\":   { \"type\": \"Text\",    \"value\": \"M-03\" },\n  \"name\":             { \"type\": \"Text\",    \"value\": \"Medico refrigerado\" },\n  \"category\":         { \"type\": \"Text\",    \"value\": \"medical\" },\n  \"temp_min\":         { \"type\": \"Number\",  \"value\": 2.0 },\n  \"temp_max\":         { \"type\": \"Number\",  \"value\": 8.0 },\n  \"humidity_max\":     { \"type\": \"Number\",  \"value\": 80.0 },\n  \"current_temp\":     { \"type\": \"Number\",  \"value\": 5.0 },\n  \"current_humidity\": { \"type\": \"Number\",  \"value\": 50.0 },\n  \"last_impact_g\":    { \"type\": \"Number\",  \"value\": 1.0 },\n  \"last_light_level\": { \"type\": \"Number\",  \"value\": 512 },\n  \"is_open\":          { \"type\": \"Boolean\", \"value\": false },\n  \"severity\":         { \"type\": \"Text\",    \"value\": \"nominal\" }\n}"
+            },
+            "url": {
+              "raw": "http://{{url}}:1026/v2/entities",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "1026",
+              "path": ["v2", "entities"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Consultas (uso diario)",
+      "item": [
+        {
+          "name": "3.1 Estado atual do compartimento M-03",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "url": {
+              "raw": "http://{{url}}:1026/v2/entities/urn:ngsi-ld:Compartment:DRAGON-C209:M-03",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "1026",
+              "path": ["v2", "entities", "urn:ngsi-ld:Compartment:DRAGON-C209:M-03"]
+            }
+          }
+        },
+        {
+          "name": "3.2 Listar todas as entidades",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "url": {
+              "raw": "http://{{url}}:1026/v2/entities",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "1026",
+              "path": ["v2", "entities"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Comandos cloud -> edge (testar atuadores)",
+      "item": [
+        {
+          "name": "4.1 Acionar ALERT (LED + buzzer ligados)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alert\": {\n    \"type\": \"command\",\n    \"value\": \"on\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://{{url}}:1026/v2/entities/urn:ngsi-ld:Compartment:DRAGON-C209:M-03/attrs",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "1026",
+              "path": ["v2", "entities", "urn:ngsi-ld:Compartment:DRAGON-C209:M-03", "attrs"]
+            }
+          }
+        },
+        {
+          "name": "4.2 Acionar ACK (desliga atuadores)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ack\": {\n    \"type\": \"command\",\n    \"value\": \"true\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://{{url}}:1026/v2/entities/urn:ngsi-ld:Compartment:DRAGON-C209:M-03/attrs",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "1026",
+              "path": ["v2", "entities", "urn:ngsi-ld:Compartment:DRAGON-C209:M-03", "attrs"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Manutencao (limpeza em caso de erro)",
+      "item": [
+        {
+          "name": "5.1 Deletar Device",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "url": {
+              "raw": "http://{{url}}:4041/iot/devices/compartment_m03",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "4041",
+              "path": ["iot", "devices", "compartment_m03"]
+            }
+          }
+        },
+        {
+          "name": "5.2 Deletar Service Group",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "url": {
+              "raw": "http://{{url}}:4041/iot/services?resource=/iot/d&apikey=4jggokgpepnvsb2uv4s40d59ov",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "4041",
+              "path": ["iot", "services"],
+              "query": [
+                { "key": "resource", "value": "/iot/d" },
+                { "key": "apikey",   "value": "4jggokgpepnvsb2uv4s40d59ov" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "5.3 Deletar Entidade no Orion",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "url": {
+              "raw": "http://{{url}}:1026/v2/entities/urn:ngsi-ld:Compartment:DRAGON-C209:M-03",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "1026",
+              "path": ["v2", "entities", "urn:ngsi-ld:Compartment:DRAGON-C209:M-03"]
+            }
+          }
+        },
+        {
+          "name": "5.4 Deletar Entidade fantasma (apos auto-provisioning)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "fiware-service", "value": "smart" },
+              { "key": "fiware-servicepath", "value": "/" }
+            ],
+            "url": {
+              "raw": "http://{{url}}:1026/v2/entities/Compartment:compartment_m03",
+              "protocol": "http",
+              "host": ["{{url}}"],
+              "port": "1026",
+              "path": ["v2", "entities", "Compartment:compartment_m03"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
