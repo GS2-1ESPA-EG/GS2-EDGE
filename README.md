@@ -575,36 +575,6 @@ Verifique que os headers `fiware-service: smart` e `fiware-servicepath: /` estã
 
 ---
 
-## Próximos passos (Global Solution)
-
-A entrega da disciplina (Edge Computing) está completa com:
-
-- ✅ FIWARE Descomplicado rodando na Azure
-- ✅ Entidade `Compartment:DRAGON-C209:M-03` no Orion
-- ✅ ESP32 simulado no Wokwi publicando telemetria
-- ✅ Fluxo edge → cloud (telemetria automática)
-- ✅ Fluxo cloud → edge (comandos via Postman)
-
-A próxima etapa, fora do escopo desta entrega, é integrar com o dashboard web do projeto OrbitStock (repositório `GS2-WEBFRONT`), que:
-
-1. **Backend Node/TS** fará polling do Orion via HTTP a cada 3s.
-2. **SQLite** vai armazenar os eventos em modelo append-only (event sourcing).
-3. **Anthropic API** gerará relatórios executivos com IA preditiva.
-4. **Frontend React** renderizará gráficos em tempo real com Chart.js.
-
----
-
-## Submissão da disciplina
-
-Conforme orientação do professor:
-
-- **Microsoft Forms:** https://forms.office.com/r/uU5vFNpJUx (prazo 30/03/2026)
-- **GitHub público** com este repositório
-- **Link do Wokwi** (botão Share dentro do projeto)
-- **Vídeo de até 3 minutos** em time-lapse mostrando o funcionamento (Wokwi + Postman + entidade no Orion atualizando)
-
----
-
 ## Créditos
 
 ### FIWARE Descomplicado
@@ -615,10 +585,3 @@ A pasta `fiware/` deste repositório (incluindo `docker-compose.yml` e `mosquitt
 - Licença completa preservada em: `fiware/LICENSE`
 
 Os arquivos foram incluídos neste repositório para torná-lo autocontido (qualquer pessoa que clone consegue subir o ambiente sem precisar de outro repositório), com crédito explícito ao autor original. Nenhuma modificação substantiva foi feita — apenas comentários explicativos.
-
-### Outros
-
-- **Prof. Lucas** — tutoriais YouTube de Health Check e Postman
-- **FIAP** — Global Solution 2026 Indústria Espacial
-- **Fundação FIWARE** — Generic Enablers Orion, STH-Comet, IoT Agent UL
-- **Eclipse Foundation** — Mosquitto MQTT Broker
