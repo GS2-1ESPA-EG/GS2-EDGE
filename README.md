@@ -38,6 +38,12 @@ O sistema demonstra os dois sentidos do fluxo edge-cloud:
 
 ---
 
+## Demonstração
+
+![OrbitStock em funcionamento](imagens/Captura%20de%20tela%202026-06-07%20233548.png)
+
+---
+
 ## Arquitetura
 
 ```
